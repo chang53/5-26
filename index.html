@@ -31,6 +31,33 @@
       <button onclick="showGame('guess')">猜數字</button>
       <button onclick="showGame('tictactoe')">井字棋</button>
       <button onclick="showGame('typing')">打字練習</button>
+      <button onclick="showGame('tetris')">俄羅斯方塊</button>
+      <button onclick="showGame('minecraft')">方塊世界</button>
+    <!-- Minecraft 類沙盒遊戲 -->
+    <div id="game-minecraft" class="game-section">
+      <h2>方塊世界（簡易 Minecraft）</h2>
+      <div style="margin-bottom:8px;">
+        <span>選擇方塊：</span>
+        <button onclick="mcSelectBlock(1)" style="background:#a0522d;color:#fff;">泥土</button>
+        <button onclick="mcSelectBlock(2)" style="background:#7cfc00;">草地</button>
+        <button onclick="mcSelectBlock(3)" style="background:#888;color:#fff;">石頭</button>
+        <button onclick="mcSelectBlock(4)" style="background:#deb887;">木頭</button>
+        <button onclick="mcSelectBlock(5)" style="background:#228b22;color:#fff;">樹葉</button>
+        <span style="margin-left:12px;">目前：<span id="mc-selected">泥土</span></span>
+      </div>
+      <canvas id="minecraft-canvas" width="560" height="420" style="background:#bfefff;display:block;margin:0 auto;border-radius:8px;box-shadow:0 2px 8px #0002;"></canvas>
+      <div style="font-size:0.95em;color:#555;margin-top:8px;">左鍵放置方塊，右鍵挖除方塊</div>
+      <button onclick="resetMinecraft()">重置世界</button>
+      <button class="back-btn" onclick="backToMenu()">回主選單</button>
+    </div>
+    </div>
+    <!-- 俄羅斯方塊遊戲 -->
+    <div id="game-tetris" class="game-section">
+      <h2>俄羅斯方塊</h2>
+      <canvas id="tetris-canvas" width="240" height="480" style="background:#222;display:block;margin:0 auto;border-radius:8px;"></canvas>
+      <p id="tetris-message"></p>
+      <button onclick="resetTetris()">重新開始</button>
+      <button class="back-btn" onclick="backToMenu();if(window.tetrisTimer)clearInterval(window.tetrisTimer);">回主選單</button>
     </div>
     <!-- 猜數字遊戲 -->
     <div id="game-guess" class="game-section">
@@ -59,10 +86,20 @@
       <button class="back-btn" onclick="backToMenu()">回主選單</button>
     </div>
   </div>
+  <script src="tetris.js"></script>
+  <script src="minecraft.js"></script>
   <script>
     // 主選單切換
     function showGame(game) {
       document.querySelectorAll('.game-section').forEach(e => e.classList.remove('active'));
+      if(game==='tetris') {
+        showTetris();
+        return;
+      }
+      if(game==='minecraft') {
+        showMinecraft();
+        return;
+      }
       document.getElementById('game-' + game).classList.add('active');
       if (game === 'guess') resetGuess();
       if (game === 'tictactoe') resetTicTacToe();
