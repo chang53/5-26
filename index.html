@@ -32,7 +32,18 @@
       <button onclick="showGame('tictactoe')">井字棋</button>
       <button onclick="showGame('typing')">打字練習</button>
       <button onclick="showGame('tetris')">俄羅斯方塊</button>
+      <button onclick="showGame('snake')">貪吃蛇</button>
       <button onclick="showGame('minecraft')">方塊世界</button>
+    <!-- 貪吃蛇遊戲 -->
+    <div id="game-snake" class="game-section">
+      <h2>貪吃蛇</h2>
+      <canvas id="snake-canvas" width="400" height="400" style="background:#222;display:block;margin:0 auto;border-radius:8px;"></canvas>
+      <div style="font-size:0.95em;color:#555;margin-top:8px;">方向鍵操作，吃到紅色方塊加分。撞到自己或邊界即結束。<br>按 Enter 可重新開始。<br><b>你也可以讓 RL 代理人自動訓練！</b></div>
+      <button onclick="resetSnake()">重新開始</button>
+      <button onclick="startSnakeRL()">RL自動訓練</button>
+      <button onclick="stopSnakeRL()">停止訓練</button>
+      <button class="back-btn" onclick="backToMenu();if(window.timer)clearInterval(window.timer);">回主選單</button>
+    </div>
     <!-- Minecraft 類沙盒遊戲 -->
     <div id="game-minecraft" class="game-section">
       <h2>方塊世界（簡易 Minecraft）</h2>
@@ -87,6 +98,7 @@
     </div>
   </div>
   <script src="tetris.js"></script>
+  <script src="snake.js"></script>
   <script src="minecraft.js"></script>
   <script>
     // 主選單切換
@@ -98,6 +110,11 @@
       }
       if(game==='minecraft') {
         showMinecraft();
+        return;
+      }
+      if(game==='snake') {
+        document.getElementById('game-snake').classList.add('active');
+        startSnake();
         return;
       }
       document.getElementById('game-' + game).classList.add('active');
