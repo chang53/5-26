@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小遊戲合集</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h1 { text-align: center; }
+    .game-list { display: flex; justify-content: space-around; margin-bottom: 32px; }
+    .game-list button { padding: 12px 24px; font-size: 1.1em; border-radius: 6px; border: none; background: #1976d2; color: #fff; cursor: pointer; transition: background 0.2s; }
+    .game-list button:hover { background: #1565c0; }
+    .game-section { display: none; }
+    .active { display: block; }
+    .back-btn { margin-top: 24px; background: #888; }
+    .back-btn:hover { background: #555; }
+    /* 井字棋樣式 */
+    .tictactoe-board { display: grid; grid-template-columns: repeat(3, 60px); grid-gap: 8px; justify-content: center; margin: 20px 0; }
+    .tictactoe-cell { width: 60px; height: 60px; font-size: 2em; text-align: center; line-height: 60px; background: #e3e3e3; border-radius: 6px; cursor: pointer; }
+    .tictactoe-cell:disabled { background: #ccc; cursor: not-allowed; }
+    /* 打字練習樣式 */
+    .typing-word { font-size: 1.3em; letter-spacing: 2px; margin-bottom: 12px; }
+    .typing-input { font-size: 1.1em; padding: 6px; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>小遊戲合集</h1>
+    <div class="game-list">
+      <button onclick="showGame('guess')">猜數字</button>
+      <button onclick="showGame('tictactoe')">井字棋</button>
+      <button onclick="showGame('typing')">打字練習</button>
+    </div>
+    <!-- 猜數字遊戲 -->
+    <div id="game-guess" class="game-section">
+      <h2>猜數字遊戲</h2>
+      <p>我心裡有個 1~100 的數字，猜猜看是幾？</p>
+      <input type="number" id="guess-input" min="1" max="100" placeholder="輸入你的猜測...">
+      <button onclick="guessNumber()">猜！</button>
+      <p id="guess-message"></p>
+      <button class="back-btn" onclick="backToMenu()">回主選單</button>
+    </div>
+    <!-- 井字棋遊戲 -->
+    <div id="game-tictactoe" class="game-section">
+      <h2>井字棋</h2>
+      <div class="tictactoe-board" id="tictactoe-board"></div>
+      <p id="tictactoe-message"></p>
+      <button onclick="resetTicTacToe()">重新開始</button>
+      <button class="back-btn" onclick="backToMenu()">回主選單</button>
+    </div>
+    <!-- 打字練習遊戲 -->
+    <div id="game-typing" class="game-section">
+      <h2>打字練習</h2>
+      <div class="typing-word" id="typing-word"></div>
+      <input type="text" class="typing-input" id="typing-input" placeholder="請輸入上方單字..." oninput="checkTyping()">
+      <p id="typing-message"></p>
+      <button onclick="nextTypingWord()">下一個單字</button>
+      <button class="back-btn" onclick="backToMenu()">回主選單</button>
+    </div>
+  </div>
+  <script>
+    // 主選單切換
+    function showGame(game) {
+      document.querySelectorAll('.game-section').forEach(e => e.classList.remove('active'));
+      document.getElementById('game-' + game).classList.add('active');
+      if (game === 'guess') resetGuess();
+      if (game === 'tictactoe') resetTicTacToe();
+      if (game === 'typing') nextTypingWord();
+    }
+    function backToMenu() {
+      document.querySelectorAll('.game-section').forEach(e => e.classList.remove('active'));
+    }
+    // 猜數字遊戲
+    let guessAnswer, guessCount;
+    function resetGuess() {
+      guessAnswer = Math.floor(Math.random() * 100) + 1;
+      guessCount = 0;
+      document.getElementById('guess-input').value = '';
+      document.getElementById('guess-message').textContent = '';
+    }
+    function guessNumber() {
+      const val = parseInt(document.getElementById('guess-input').value, 10);
+      if (isNaN(val) || val < 1 || val > 100) {
+        document.getElementById('guess-message').textContent = '請輸入 1~100 的整數';
+        return;
+      }
+      guessCount++;
+      if (val === guessAnswer) {
+        document.getElementById('guess-message').textContent = `恭喜答對！總共猜了 ${guessCount} 次。`;
+      } else if (val < guessAnswer) {
+        document.getElementById('guess-message').textContent = '太小了！';
+      } else {
+        document.getElementById('guess-message').textContent = '太大了！';
+      }
+    }
+    // 井字棋遊戲
+    let tttBoard, tttTurn, tttOver;
+    function resetTicTacToe() {
+      tttBoard = Array(9).fill('');
+      tttTurn = 'X';
+      tttOver = false;
+      renderTicTacToe();
+      document.getElementById('tictactoe-message').textContent = '輪到 ' + tttTurn;
+    }
+    function renderTicTacToe() {
+      const board = document.getElementById('tictactoe-board');
+      board.innerHTML = '';
+      tttBoard.forEach((cell, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'tictactoe-cell';
+        btn.textContent = cell;
+        btn.disabled = !!cell || tttOver;
+        btn.onclick = () => moveTicTacToe(i);
+        board.appendChild(btn);
+      });
+    }
+    function moveTicTacToe(i) {
+      if (tttBoard[i] || tttOver) return;
+      tttBoard[i] = tttTurn;
+      if (checkTicTacToeWin(tttTurn)) {
+        document.getElementById('tictactoe-message').textContent = tttTurn + ' 勝利！';
+        tttOver = true;
+      } else if (tttBoard.every(cell => cell)) {
+        document.getElementById('tictactoe-message').textContent = '平手！';
+        tttOver = true;
+      } else {
+        tttTurn = tttTurn === 'X' ? 'O' : 'X';
+        document.getElementById('tictactoe-message').textContent = '輪到 ' + tttTurn;
+      }
+      renderTicTacToe();
+    }
+    function checkTicTacToeWin(player) {
+      const winPatterns = [
+        [0,1,2],[3,4,5],[6,7,8], // 橫
+        [0,3,6],[1,4,7],[2,5,8], // 直
+        [0,4,8],[2,4,6]          // 斜
+      ];
+      return winPatterns.some(p => p.every(idx => tttBoard[idx] === player));
+    }
+    // 打字練習遊戲
+    const typingWords = ['apple', 'banana', 'cat', 'dog', 'elephant', 'flower', 'giraffe', 'house', 'internet', 'jungle'];
+    let typingIndex = 0;
+    function nextTypingWord() {
+      typingIndex = Math.floor(Math.random() * typingWords.length);
+      document.getElementById('typing-word').textContent = typingWords[typingIndex];
+      document.getElementById('typing-input').value = '';
+      document.getElementById('typing-message').textContent = '';
+      document.getElementById('typing-input').focus();
+    }
+    function checkTyping() {
+      const input = document.getElementById('typing-input').value;
+      const word = document.getElementById('typing-word').textContent;
+      if (input === word) {
+        document.getElementById('typing-message').textContent = '正確！';
+      } else {
+        document.getElementById('typing-message').textContent = '';
+      }
+    }
+  </script>
+</body>
+</html>
